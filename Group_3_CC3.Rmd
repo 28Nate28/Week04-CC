@@ -1,6 +1,6 @@
 ---
 title: "BIOL343 Coding Challenge 3"
-author: "Group 3 — "
+author: "Group 3 - Nathan  "
 date: "`r format(Sys.Date(), '%d %B %Y')`"
 output: html_document
 ---
@@ -227,13 +227,25 @@ Starting from `all_data`, the four measurement columns you renamed in Section 5 
 
 ```{r pivot-longer}
 
-# long_data <-
+long_data <- pivot_longer(all_data, 
+  cols=c("invert_PC1", "invert_PC2", "chem_PC1", "chem_PC2"),
+  names_to = "Measure",
+  values_to = "Score")
+
+head(long_data)
+dim(long_data)
+
 
 ```
 
 Now use `long_data` to draw histograms of `Score` with `facet_wrap()` so that each `Measure` gets its own panel (Chapter 4 and Chapter 7). Choose a sensible `binwidth`, add axis labels and a title, and use `theme_classic()`.
 
 ```{r score-histograms}
+library(ggplot2)
+
+ggplot(long_data, aes(Score)) +
+  geom_histogram(binwidth=1, fill="light green", color="black") +
+  facet_wrap(~Measure)
 
 ```
 
@@ -243,13 +255,18 @@ Each `ID` was sampled once in each year. Starting from `all_data`, `select()` on
 
 ```{r pivot-wider}
 
-# wide_conc <-
+wide_conc <- all_data %>%
+  select(ID, Year, Conc) %>%
+  pivot_wider(names_from = Year, values_from = Conc) %>%
+  mutate(Change = `2022` - `2021`)
 
 ```
 
 **Question 5:** How many IDs have a higher concentration in the second year than in the first, and how many have `NA` for the change? Why are there NAs?
 
 **Answer:**
+
+**19 IDs** increased in the second year compared to the first, there were **6 NAs** because of the missing values in the original dataset (data1)
 
 # Part 5 — Test the hypothesis visually
 
@@ -258,17 +275,29 @@ Each `ID` was sampled once in each year. Starting from `all_data`, `select()` on
 Use `ggplot()` to plot `PC1` on the x-axis and `PC2` on the y-axis for **one** of the two measurement sets, with `colour = Conc` so that concentration is shown by colour, and `facet_wrap()` by `Year`. Include `theme_classic()`, axis labels and a title (Chapter 4 and Chapter 7). Repeat for the other measurement set if it helps you answer Question 6. A few points will be **grey**: those are samples with no concentration value (`Conc` is `NA` because they were not in `Dataset1.csv`), so no colour can be assigned. Ignore them when you answer Question 6, or drop them first with `filter(!is.na(Conc))`.
 
 ```{r pc-scatter}
-
+all_data %>%
+  filter(!is.na(Conc))%>%
+ggplot(aes(invert_PC1, invert_PC2)) + 
+  geom_point(aes(color=Conc)) +
+  labs(
+    title ="Impact of Lake Arsenic Concentration on Invertebrate Communities",
+    x ="Invertebrate PC1 Score",
+    y ="Invertebrate PC2 Score"
+  ) +
+  facet_wrap(~Year) +
+  theme_classic()
 ```
 
 **Question 6:** What do the data say about the hypothesis in your scenario (patients with similar viral loads have similar gut microbes and urine metabolites, or lakes with similar arsenic levels have similar invertebrate communities and water chemistry)? Answer in a short paragraph from visual inspection of your figures. For now, assume that any strong pattern is statistically robust; later we will learn to test this with models.
 
 **Answer:**
+The data shows that lakes with similar arsenic levels have similar water chemistry and similar invertebrate communities. In 2022 the most of the lakes had similar arsenic concentration and you can see that the different lakes had similar PC 1 and PC2 scores, the same is seen in 2021 although not the the same extent suggesting that maybe lower arsenic levels indicate less diversity amongst invertebrate communities.
+
 
 **Question 7:** Read the scenario you did not choose. What, if anything, would you have done differently in the code? What does this tell you about coding as a transferable skill?
 
 **Answer:**
-
+I wouldn't change much about the code besides the naming of everything. This shows that coding is skill required in multiple different feilds of work, and is an advantageous skill to have in the workforce. 
 # DO THIS LAST {-}
 
 When your document is finished and knitted, copy and paste this into the R Console to stop positpal and create your coding log. **Do not include it as a code chunk.**
